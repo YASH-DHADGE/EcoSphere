@@ -1,191 +1,73 @@
-# EcoSphere Frontend
+# React + TypeScript + Vite
 
-A modern, interactive React frontend for the EcoSphere climate change awareness platform.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🚀 Features
+Currently, two official plugins are available:
 
-- **Modern UI/UX**: Beautiful, responsive design with dark mode support
-- **Carbon Tracking**: Interactive calculator with real-time CO2 calculations
-- **Climate News**: Latest environmental news with filtering and search
-- **Gamification**: Challenges, achievements, and leaderboards
-- **AI Assistant**: Intelligent chatbot for climate guidance
-- **Social Features**: Friends, comparisons, and community challenges
-- **Real-time Data**: Live climate statistics and trends
-- **Mobile Responsive**: Optimized for all device sizes
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## 🛠️ Tech Stack
+## React Compiler
 
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **React Router** for navigation
-- **Chart.js** for data visualization
-- **Axios** for API communication
-- **Heroicons** for beautiful icons
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## 📦 Installation
+## Expanding the ESLint configuration
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-3. Create environment file:
-   ```bash
-   cp .env.example .env.local
-   ```
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-4. Update `.env.local` with your configuration:
-   ```env
-   VITE_API_URL=http://localhost:8000/api
-   ```
-
-## 🚀 Development
-
-Start the development server:
-```bash
-npm run dev
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-The app will be available at `http://localhost:5173`
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## 🏗️ Build
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-Build for production:
-```bash
-npm run build
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-Preview production build:
-```bash
-npm run preview
-```
-
-## 📁 Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-│   ├── Header.tsx      # Navigation header
-│   ├── Layout.tsx      # Main layout wrapper
-│   ├── Sidebar.tsx     # Navigation sidebar
-│   ├── Chatbot.tsx     # AI assistant widget
-│   └── NotificationCenter.tsx
-├── pages/              # Page components
-│   ├── Home.tsx        # Landing page
-│   ├── Login.tsx       # Authentication
-│   ├── CarbonCalculator.tsx
-│   ├── News.tsx        # Climate news
-│   ├── Challenges.tsx  # Gamification
-│   ├── Profile.tsx     # User profile
-│   └── ...
-├── context/            # React context providers
-│   ├── AuthContext.tsx # Authentication state
-│   └── ThemeContext.tsx # Dark/light mode
-├── services/           # API services
-│   ├── api.ts          # API configuration
-│   └── websocket.ts    # Real-time communication
-├── hooks/              # Custom React hooks
-├── utils/              # Utility functions
-└── main.tsx           # App entry point
-```
-
-## 🎨 Design System
-
-### Colors
-- **Primary**: Green (#10B981) - Environmental theme
-- **Secondary**: Blue (#3B82F6) - Trust and technology
-- **Earth**: Orange (#F28C0C) - Natural elements
-- **Success**: Green variants
-- **Warning**: Yellow variants
-- **Error**: Red variants
-
-### Components
-- **Buttons**: Primary, secondary, outline, ghost variants
-- **Cards**: Interactive cards with hover effects
-- **Forms**: Consistent input styling with focus states
-- **Badges**: Status indicators and categories
-- **Charts**: Data visualization components
-
-## 🔌 API Integration
-
-The frontend integrates with the Django backend through:
-
-- **Authentication**: JWT token-based auth
-- **Carbon Tracking**: CRUD operations for carbon entries
-- **Gamification**: Challenges and achievements
-- **News**: Climate news articles
-- **Notifications**: Real-time notifications
-- **Chatbot**: AI assistant communication
-
-## 📱 Responsive Design
-
-- **Mobile First**: Optimized for mobile devices
-- **Breakpoints**: sm (640px), md (768px), lg (1024px), xl (1280px)
-- **Touch Friendly**: Large touch targets and gestures
-- **Progressive Enhancement**: Works without JavaScript
-
-## 🌙 Dark Mode
-
-- **System Preference**: Automatically detects user preference
-- **Manual Toggle**: Users can switch themes
-- **Persistent**: Remembers user choice
-- **Smooth Transitions**: Animated theme changes
-
-## 🧪 Testing
-
-Run tests:
-```bash
-npm run test
-```
-
-Run linting:
-```bash
-npm run lint
-```
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically on push
-
-### Netlify
-1. Connect repository
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-
-### Docker
-```bash
-docker build -t ecosphere-frontend .
-docker run -p 3000:3000 ecosphere-frontend
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue on GitHub
-- Contact the development team
-- Check the documentation
-
----
-
-Built with ❤️ for a sustainable future 🌍
