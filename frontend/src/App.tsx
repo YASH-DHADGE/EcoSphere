@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import Features from './components/Features';
+import Footer from './components/Footer';
+import AuthModal from './components/AuthModal';
+import AboutModal from './components/AboutModal';
+import ContactModal from './components/ContactModal';
+
+const App: React.FC = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ThemeProvider>
+      <Router>
+        <div
+          className={`min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-500 ${
+            !isLoaded ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          {/* Header stays on all pages */}
+          <Header />
 
-export default App
+          <main className="flex-grow">
+            <Routes>
+              {/* Home Page */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <Features />
+                  </>
+                }
+              />
+
+              {/* About Page */}
+              <Route path="/about" element={<AboutModal />} />
+
+              {/* Contact Page */}
+              <Route path="/contact" element={<ContactModal />} />
+
+              {/* Auth Page */}
+              <Route path="/auth" element={<AuthModal />} />
+            </Routes>
+          </main>
+
+          {/* Footer stays on all pages */}
+          <Footer />
+        </div>
+      </Router>
+    </ThemeProvider>
+  );
+};
+
+export default App;
