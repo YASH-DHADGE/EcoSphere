@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle } from './common/Card';
 import { Home, Car, Plane, Droplets, Zap, Sparkles, Loader2 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { getCarbonFootprintSuggestions } from '../services/geminiService';
-import { ReactMarkdown } from 'react-markdown';
+import  ReactMarkdown  from 'react-markdown';
 
 const emissionFactors = {
   electricity: 0.233, // kg CO2e per kWh
@@ -80,7 +80,7 @@ export const CarbonCalculator: React.FC = () => {
       transport: results.transport
     };
     const response = await getCarbonFootprintSuggestions(suggestionData);
-    setSuggestions(response);
+    setSuggestions(response ?? '');
     setIsLoadingSuggestions(false);
   };
   
