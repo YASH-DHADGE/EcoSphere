@@ -17,7 +17,7 @@ const AuthPage: React.FC = () => {
     setError('');
 
     try {
-      const url = isLogin ? 'http://localhost:8080/api/login' : 'http://localhost:8080/api/signup';
+      const url = isLogin ? 'http://localhost:8000/api/login' : 'http://localhost:8000/api/signup';
       const payload = isLogin
         ? { email: formData.email, password: formData.password }
         : formData;
