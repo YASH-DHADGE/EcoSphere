@@ -1,46 +1,75 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
-import LogoIcon from './icons/LogoIcon';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Sun, Moon, Menu } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
+import LogoIcon from "./icons/LogoIcon";
 
-const SunIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-    />
-  </svg>
-);
+interface HeaderProps {
+  toggleSidebar?: () => void;  
+}
 
-const MoonIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-    />
-  </svg>
-);
-
-const Header: React.FC = () => {
+/**
+ * Single Header component:
+ * - Shows Logged-In Header when token exists
+ * - Shows Public Header when token is missing
+ */
+const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { theme, toggleTheme } = useTheme();
+  const isLoggedIn = localStorage.getItem("token") !== null;
 
-  return (
-    <header
-      className="w-full bg-[#1B4332] dark:bg-[#0F241C] text-white shadow-lg sticky top-0 z-50 border-b border-[#2D6A4F]"
-    >
+  return isLoggedIn ? (
+    /* ------------------------------------------- */
+    /*                LOGGED-IN HEADER             */
+    /* ------------------------------------------- */
+    <header className="flex-shrink-0 bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+
+        {/* Sidebar toggle for dashboard */}
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden text-gray-600 dark:text-gray-300 hover:text-primary-green dark:hover:text-primary-green"
+        >
+          <Menu size={24} />
+        </button>
+
+        <div className="flex items-center ml-auto">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          >
+            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+
+          {/* User Avatar */}
+          <div className="ml-4 flex items-center">
+            <img
+              src={`https://picsum.photos/seed/user/40/40`}
+              alt="User Avatar"
+              className="w-10 h-10 rounded-full border-2 border-primary-green"
+            />
+            <div className="ml-3 hidden sm:block">
+              <p className="text-sm font-semibold text-gray-800 dark:text-white">Alex Green</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Eco-Enthusiast</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  ) : (
+    /* ------------------------------------------- */
+    /*                  PUBLIC HEADER              */
+    /* ------------------------------------------- */
+    <header className="w-full bg-[#1B4332] dark:bg-[#0F241C] text-white shadow-lg sticky top-0 z-50 border-b border-[#2D6A4F]">
       <div className="flex items-center justify-between w-full px-8 py-3">
-        
-        {/* LEFT SIDE: Logo + Brand */}
+
+        {/* Left side – Logo */}
         <Link to="/" className="flex items-center space-x-2 mr-auto">
           <LogoIcon className="h-9 w-9 text-[#95D5B2]" />
           <span className="text-2xl font-bold tracking-tight">EcoSphere</span>
         </Link>
 
-        {/* RIGHT SIDE: Navigation + Auth + Theme */}
+        {/* Right side – About, Contact, Login */}
         <div className="flex items-center space-x-6 ml-auto">
           <nav className="hidden md:flex items-center space-x-6">
             <Link
@@ -49,6 +78,7 @@ const Header: React.FC = () => {
             >
               About Us
             </Link>
+
             <Link
               to="/contact"
               className="font-medium hover:text-amber-400 transition-colors"
@@ -64,11 +94,16 @@ const Header: React.FC = () => {
             Login
           </Link>
 
+          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
           >
-            {theme === 'light' ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
+            {theme === "light" ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
