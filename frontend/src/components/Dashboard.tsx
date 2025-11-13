@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle } from './common/Card';
 import { TrendingUp, Thermometer, Waves, Leaf, Globe, Cloud, X, Loader2 } from 'lucide-react';
-import type { ClimateDataPoint } from '../types';
+import type {ClimateDataPoint } from '../types';
 import { getStatCardDetails } from '../services/geminiService';
 import ReactMarkdown from 'react-markdown';
 
@@ -210,3 +210,4 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
+export default Dashboard;
