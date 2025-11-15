@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import LogoIcon from "./icons/LogoIcon";
 
 interface HeaderProps {
-  toggleSidebar?: () => void;  
+  toggleSidebar?: () => void;
 }
 
 /**
@@ -32,7 +32,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <Menu size={24} />
         </button>
 
-        <div className="flex items-center ml-auto">
+        {/* RIGHT SIDE CONTENT */}
+        <div className="flex items-center ml-auto space-x-4">
+
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
@@ -42,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           </button>
 
           {/* User Avatar */}
-          <div className="ml-4 flex items-center">
+          <div className="flex items-center">
             <img
               src={`https://picsum.photos/seed/user/40/40`}
               alt="User Avatar"
@@ -53,6 +55,19 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <p className="text-xs text-gray-500 dark:text-gray-400">Eco-Enthusiast</p>
             </div>
           </div>
+
+          {/* LOGOUT BUTTON */}
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              window.location.href = "/"; // go back to landing page
+            }}
+            className="text-sm px-3 py-1 border border-red-500 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition"
+          >
+            Logout
+          </button>
+
         </div>
       </div>
     </header>
