@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Sun, Moon, Menu } from "lucide-react";
+import { Sun, Moon, Menu, Leaf } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import LogoIcon from "./icons/LogoIcon";
 
@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
         {/* Left side – Logo */}
         <Link to="/" className="flex items-center space-x-2 mr-auto">
-          <LogoIcon className="h-9 w-9 text-[#95D5B2]" />
+          <Leaf className="text-primary-green" size={28} />
           <span className="text-2xl font-bold tracking-tight">EcoSphere</span>
         </Link>
 
