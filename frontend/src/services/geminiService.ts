@@ -1,14 +1,83 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// Use Vite-style environment variable (must start with VITE_)
+// Configuration
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
+// We use a prioritized list of models.
+// The first one is optimized for this preview environment.
+// The second is the standard public model for local dev/production.
+const MODEL_IDS = [
+  "gemini-2.5-flash-preview-09-2025", // Preview environment specific
+  "gemini-1.5-flash", // Standard public model
+  "gemini-1.5-flash-002", // Fallback version
+];
+
+const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
 if (!API_KEY) {
-  throw new Error("VITE_GEMINI_API_KEY is not defined in your .env file");
+  console.error("VITE_GEMINI_API_KEY is not defined in your .env file");
 }
 
-const ai = new GoogleGenerativeAI(API_KEY);
-const modelName = "gemini-1.5-flash"; // use stable, available model
+/**
+ * ROBUST API CALL FUNCTION
+ * Handles connection, headers, and retries with model fallbacks.
+ */
+async function callGeminiAPI(
+  prompt: string,
+  retryCount = 0,
+  modelIndex = 0
+): Promise<string> {
+  if (!API_KEY) return "Error: API Key is missing. Please check .env file.";
+  if (modelIndex >= MODEL_IDS.length)
+    return "Error: All models failed to respond.";
+
+  const currentModel = MODEL_IDS[modelIndex];
+  const apiUrl = `${BASE_URL}/${currentModel}:generateContent`;
+
+  try {
+    const response = await fetch(`${apiUrl}?key=${API_KEY}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+      }),
+    });
+
+    // SPECIFIC HANDLING FOR 404 (Model Not Found)
+    if (response.status === 404) {
+      console.warn(
+        `Model ${currentModel} not found (404). Switching to fallback...`
+      );
+      return callGeminiAPI(prompt, 0, modelIndex + 1);
+    }
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) throw new Error("No content generated");
+
+    return text;
+  } catch (error) {
+    // Retry logic for network blips (up to 2 times)
+    if (retryCount < 2) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return callGeminiAPI(prompt, retryCount + 1, modelIndex);
+    }
+
+    console.error(`Gemini API Failed (${currentModel}):`, error);
+
+    // If retries failed, try next model
+    if (modelIndex < MODEL_IDS.length - 1) {
+      return callGeminiAPI(prompt, 0, modelIndex + 1);
+    }
+
+    return "I'm sorry, I'm having trouble connecting to the climate database right now. Please try again later.";
+  }
+}
 
 // ----------- Chatbot Response -----------
 export const getChatbotResponse = async (
@@ -16,32 +85,37 @@ export const getChatbotResponse = async (
   newMessage: string
 ) => {
   try {
-    const model = ai.getGenerativeModel({ model: modelName });
+    const conversationHistory = history
+      .map(
+        (h) =>
+          `${h.role === "model" ? "Assistant" : "User"}: ${h.parts
+            .map((p) => p.text)
+            .join(" ")}`
+      )
+      .join("\n");
 
-    // Create conversation context as one prompt
     const combinedPrompt = `
       You are EcoSphere's friendly and knowledgeable climate assistant.
       Provide helpful, accurate, and concise information about climate change, sustainability,
       and carbon footprints. Use Markdown if it improves readability.
       
       Conversation so far:
-      ${history.map((h) => `${h.role}: ${h.parts.map((p) => p.text).join(" ")}`).join("\n")}
+      ${conversationHistory}
 
       User: ${newMessage}
+      Assistant:
     `;
 
-    const result = await model.generateContent(combinedPrompt);
-    return result.response.text();
+    return await callGeminiAPI(combinedPrompt);
   } catch (error) {
     console.error("Error getting chatbot response:", error);
-    return "I'm sorry, I'm having trouble connecting right now. Please try again later.";
+    return "I'm sorry, I'm having trouble connecting right now.";
   }
 };
 
 // ----------- Article Summarizer -----------
 export const summarizeArticle = async (articleContent: string) => {
   try {
-    const model = ai.getGenerativeModel({ model: modelName });
     const prompt = `
       Summarize the following news article in three concise bullet points.
       Focus on key findings and their implications for climate change:
@@ -49,8 +123,7 @@ export const summarizeArticle = async (articleContent: string) => {
       ---
       ${articleContent}
     `;
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await callGeminiAPI(prompt);
   } catch (error) {
     console.error("Error summarizing article:", error);
     return "Could not generate summary.";
@@ -68,7 +141,6 @@ export const getCarbonFootprintSuggestions = async (data: {
   transport: string;
 }) => {
   try {
-    const model = ai.getGenerativeModel({ model: modelName });
     const prompt = `
       Analyze the following monthly carbon footprint data. Provide 3–5 extremely practical,
       simple, and direct suggestions for how to reduce it.
@@ -91,8 +163,7 @@ export const getCarbonFootprintSuggestions = async (data: {
       - Start with one short, encouraging line.
       - Use Markdown bullet points.
     `;
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await callGeminiAPI(prompt);
   } catch (error) {
     console.error("Error getting carbon footprint suggestions:", error);
     return "I'm sorry, I'm having trouble generating suggestions right now.";
@@ -129,9 +200,7 @@ export const getStatCardDetails = async (stat: {
   }
 
   try {
-    const model = ai.getGenerativeModel({ model: modelName });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    return await callGeminiAPI(prompt);
   } catch (error) {
     console.error("Error getting stat card details:", error);
     return "I'm sorry, I'm having trouble fetching details right now.";
