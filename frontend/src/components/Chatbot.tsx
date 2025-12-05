@@ -20,25 +20,61 @@ export const Chatbot: React.FC = () => {
 
   useEffect(scrollToBottom, [messages]);
 
+  // const handleSend = async () => {
+  //   if (input.trim() === '' || isLoading) return;
+
+  //   const userMessage: ChatMessage = { sender: 'user', text: input };
+  //   setMessages(prev => [...prev, userMessage]);
+  //   setInput('');
+  //   setIsLoading(true);
+    
+  //   const history = messages.map(msg => ({
+  //     role: msg.sender === 'user' ? 'user' : 'model',
+  //     parts: [{ text: msg.text }]
+  //   }));
+
+  //   const botResponseText = await getChatbotResponse(history, input);
+  //   const botMessage: ChatMessage = { sender: 'bot', text: botResponseText };
+    
+  //   setMessages(prev => [...prev, botMessage]);
+  //   setIsLoading(false);
+  // };
+
   const handleSend = async () => {
-    if (input.trim() === '' || isLoading) return;
+  if (input.trim() === '' || isLoading) return;
 
-    const userMessage: ChatMessage = { sender: 'user', text: input };
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-    
-    const history = messages.map(msg => ({
-      role: msg.sender === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }]
-    }));
+  const userMessage: ChatMessage = { sender: 'user', text: input };
 
-    const botResponseText = await getChatbotResponse(history, input);
-    const botMessage: ChatMessage = { sender: 'bot', text: botResponseText };
-    
-    setMessages(prev => [...prev, botMessage]);
-    setIsLoading(false);
-  };
+  // Build history INCLUDING the new user message
+  const fullHistory = [...messages, userMessage].map((msg) => ({
+    role: msg.sender === "user" ? "user" : "model",
+    parts: [{ text: msg.text }],
+  }));
+
+  // Update UI immediately
+  setMessages((prev) => [...prev, userMessage]);
+  setInput("");
+  setIsLoading(true);
+
+  try {
+    const botResponseText = await getChatbotResponse(fullHistory, input);
+
+    const botMessage: ChatMessage = {
+      sender: "bot",
+      text: botResponseText || "⚠️ No response received.",
+    };
+
+    setMessages((prev) => [...prev, botMessage]);
+  } catch (error) {
+    setMessages((prev) => [
+      ...prev,
+      { sender: "bot", text: "⚠️ Error: Could not get response." },
+    ]);
+  }
+
+  setIsLoading(false);
+};
+
 
   return (
     <div className="h-full flex flex-col">
@@ -85,7 +121,7 @@ export const Chatbot: React.FC = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask about climate change..."
               className="w-full pr-12 pl-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-50 dark:bg-gray-700 focus:ring-primary-green focus:border-primary-green"
               disabled={isLoading}

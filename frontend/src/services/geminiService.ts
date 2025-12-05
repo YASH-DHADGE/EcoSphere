@@ -2,13 +2,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Use Vite-style environment variable (must start with VITE_)
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+console.log("Loaded API KEY:", import.meta.env.VITE_GEMINI_API_KEY);
 
 if (!API_KEY) {
   throw new Error("VITE_GEMINI_API_KEY is not defined in your .env file");
 }
 
 const ai = new GoogleGenerativeAI(API_KEY);
-const modelName = "gemini-1.5-flash"; // use stable, available model
+const modelName = "gemini-1.5-flash";  // <-- correct
+const model = ai.getGenerativeModel({ model: modelName });
+
 
 // ----------- Chatbot Response -----------
 export const getChatbotResponse = async (

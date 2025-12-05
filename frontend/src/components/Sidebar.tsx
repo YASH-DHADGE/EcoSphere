@@ -79,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, i
           </ul>
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-center text-gray-500 dark:text-gray-400">© 2024 EcoSphere. All rights reserved.</p>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400">© 2025 EcoSphere. All rights reserved.</p>
         </div>
       </aside>
     </>
